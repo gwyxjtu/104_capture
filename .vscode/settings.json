@@ -1,0 +1,12 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "test",
+            "group": "1",
+            "database": "${workspaceFolder:pyiec104sqlite-main}/20230812-1536.sqlite"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
