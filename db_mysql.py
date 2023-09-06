@@ -18,9 +18,9 @@ class db(object):
             gid SERIAL PRIMARY KEY,
             create_time timestamp without time zone NOT NULL,
             item_addr character varying(20) COLLATE pg_catalog."default" NOT NULL,
-            item_name character varying(50) COLLATE pg_catalog."default",
-            item_unit character varying(20) COLLATE pg_catalog."default",
-            item_val character varying(50) COLLATE pg_catalog."default"
+            item_name character varying(100) COLLATE pg_catalog."default",
+            item_unit character varying(200) COLLATE pg_catalog."default",
+            item_val character varying(100) COLLATE pg_catalog."default"
         )
 
         TABLESPACE pg_default;

@@ -11,6 +11,19 @@ import sqlite3
 from db_mysql import db
 import datetime
 import time
+import pandas as pd
+df = pd.read_excel("104_excel.xls")
+
+df = df.drop(0)
+data_dict = {}
+for idx, row in df.iterrows():
+    info_address = row[0]
+    #转为10进制
+    info_address_10 = int(info_address,16)
+    info_name = row[1]
+    data_range = row[2]
+    data_dict[info_address_10] = [info_name,data_range]
+
 
 def get_todayfilename():
 	return time.strftime("%Y%m%d-%H%M.sqlite")
@@ -32,10 +45,15 @@ class db_data(db):
 		for (addr, dt, v, q) in buf:
 			#dt_minute = dt[:-3]  # 格式化dt字段，只保留分钟部分
 			dt_minute = datetime.datetime.now()
-
+			if addr in data_dict:
+				item_name = data_dict[addr][0]
+				item_unit = data_dict[addr][1]
+			else:
+				item_name = "未知"
+				item_unit = "未知"
+			query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val) VALUES ('{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}');"""
 			# query = f'REPLACE INTO {self.table_name} VALUES ({addr}, "{dt_minute}", {v}, {q});'
-			query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val) VALUES ('{dt_minute}', '{addr}', 'item_name', 'item_unit', '{v}');"""
-	
+			
 			try:
 				cursor.execute(query)
 				self.commit()
