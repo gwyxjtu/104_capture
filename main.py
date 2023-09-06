@@ -52,10 +52,12 @@ def queue_data_reciever(q):
 	counter = 0
 	counter2 = 0
 	day = time.localtime().__getitem__(4)
+	type_id_count = {}  # 创建一个空字典来存储计数结果
+
 	while True:
 		if not (day == time.localtime().__getitem__(4)):
 			db.close()
-			log.info("Create new sqlite file")
+			log.info("Create spltable")
 			db = db_data()
 			day = time.localtime().__getitem__(4)
 		counter = 0
@@ -63,11 +65,19 @@ def queue_data_reciever(q):
 		while not q.empty():
 			counter+=1
 			asdu = q.get()
-			# log.info([ioa.TypeId for ioa in asdu.ioa])
 			for ioa in asdu.ioa:
-				if ioa.TypeId != 13:
-					continue
-				buf36.append((ioa.addr,str(ioa.time), ioa.value, ioa.quality))
+				if ioa.TypeId in type_id_count:
+					type_id_count[ioa.TypeId] += 1
+				else:
+					type_id_count[ioa.TypeId] = 1
+			print("Type Id Count:")
+			for typeId, count in type_id_count.items():
+				print(f"Type Id {typeId}: {count}")
+			# log.info([ioa.TypeId for ioa in asdu.ioa])
+			# for ioa in asdu.ioa:
+			# 	if ioa.TypeId != 13:
+			# 		continue
+			# 	buf36.append((ioa.addr,str(ioa.time), ioa.value, ioa.quality))
 		
 		counter2 += 1
 		db.put(buf36)

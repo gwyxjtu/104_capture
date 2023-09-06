@@ -31,7 +31,7 @@ class db_data(db):
 
 		for (addr, dt, v, q) in buf:
 			#dt_minute = dt[:-3]  # 格式化dt字段，只保留分钟部分
-			dt_minute = datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S")
+			dt_minute = datetime.datetime.now()
 
 			# query = f'REPLACE INTO {self.table_name} VALUES ({addr}, "{dt_minute}", {v}, {q});'
 			query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val) VALUES ('{dt_minute}', '{addr}', 'item_name', 'item_unit', '{v}');"""
