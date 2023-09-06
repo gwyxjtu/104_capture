@@ -70,14 +70,10 @@ def queue_data_reciever(q):
 					type_id_count[ioa.TypeId] += 1
 				else:
 					type_id_count[ioa.TypeId] = 1
-			print("Type Id Count:")
-			for typeId, count in type_id_count.items():
-				print(f"Type Id {typeId}: {count}")
-			# log.info([ioa.TypeId for ioa in asdu.ioa])
-			# for ioa in asdu.ioa:
-			# 	if ioa.TypeId != 13:
-			# 		continue
-			# 	buf36.append((ioa.addr,str(ioa.time), ioa.value, ioa.quality))
+			for ioa in asdu.ioa:
+				if ioa.TypeId != 13:
+					continue
+				buf36.append((ioa.addr,str(ioa.time), ioa.value, ioa.quality))
 		
 		counter2 += 1
 		db.put(buf36)
