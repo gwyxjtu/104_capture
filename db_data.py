@@ -26,7 +26,7 @@ for idx, row in df.iterrows():
 
 
 def get_todayfilename():
-	return time.strftime("%Y%m%d-%H%M.sqlite")
+	return time.strftime("%Y%m.sqlite")
 
 class db_data(db):
 	"""docstring for db_data"""
@@ -35,16 +35,21 @@ class db_data(db):
 		if not isinstance(filename,str):
 			filename = get_todayfilename()
 		super(db_data, self).__init__(filename,"data_create.sqlite")
+		self.time= datetime.datetime.now().strftime("%Y-%m")
 
 	def put(self,buf):
 		if (len(buf)==0): 
 			return
+		if datetime.datetime.now().strftime("%Y-%m") != self.time:
+			self.time= datetime.datetime.now().strftime("%Y-%m")
+			self.close()
+			self.__init__()
 		cursor = self.sql.cursor()
 		#! 以下为为添加
 
 		for (addr, dt, v, q) in buf:
 			#dt_minute = dt[:-3]  # 格式化dt字段，只保留分钟部分
-			dt_minute = datetime.datetime.now()
+			dt_minute = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 			if addr in data_dict:
 				item_name = data_dict[addr][0]
 				item_unit = data_dict[addr][1]
