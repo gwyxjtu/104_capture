@@ -1,4 +1,3 @@
-import pymysql
 from datetime import datetime
 import psycopg2
 
