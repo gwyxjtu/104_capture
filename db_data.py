@@ -7,7 +7,6 @@ FilePath: /pyiec104sqlite-main/db_data.py
 Description: 人一生会遇到约2920万人,两个人相爱的概率是0.000049,所以你不爱我,我不怪你.
 Copyright (c) 2023 by ${git_name} email: ${git_email}, All Rights Reserved.
 '''
-import sqlite3
 from db_mysql import db
 import datetime
 import time
@@ -49,21 +48,25 @@ class db_data(db):
 
 		for (addr, dt, v, q) in buf:
 			#dt_minute = dt[:-3]  # 格式化dt字段，只保留分钟部分
-			dt_minute = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+			dt_minute = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
 			if addr in data_dict:
 				item_name = data_dict[addr][0]
 				item_unit = data_dict[addr][1]
 			else:
 				item_name = "未知"
 				item_unit = "未知"
-			query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val) VALUES ('{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}');"""
-			# query = f'REPLACE INTO {self.table_name} VALUES ({addr}, "{dt_minute}", {v}, {q});'
+			#query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val) 
+   				#VALUES ('{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}');"""
+			query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val)
+				SELECT '{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}'
+				WHERE NOT EXISTS (SELECT 1 FROM {self.table_name} WHERE create_time = '{dt_minute}' AND item_addr = '{addr}'
+				)"""
 			
 			try:
 				cursor.execute(query)
 				self.commit()
-			except sqlite3.IntegrityError:
-				print("唯一约束冲突")
+			except  Exception as e:
+				print("")
 				# 处理唯一约束冲突的逻辑
 
    

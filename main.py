@@ -53,25 +53,53 @@ def queue_data_reciever(q):
 	counter2 = 0
 	
 
-	while True:
+	# while True:
 
+	# 	counter = 0
+	# 	buf36 = []
+	# 	while not q.empty():
+	# 		counter+=1
+	# 		asdu = q.get()
+	# 		for ioa in asdu.ioa:
+       
+	# 			if ioa.TypeId != 13:
+				
+	# 				continue
+	# 			buf36.append((ioa.addr,str(ioa.time), ioa.value, ioa.quality))
+	# 	counter2 += 1
+	# 	db.put(buf36)
+	# 	if (counter2>=COMMIT_COUNTER):
+	# 		counter2 = 0
+	# 		db.commit()
+	while True:
 		counter = 0
 		buf36 = []
-		while not q.empty():
-			counter+=1
-			asdu = q.get()
-
-			for ioa in asdu.ioa:
-				if ioa.TypeId != 13:
-					continue
-				buf36.append((ioa.addr,str(ioa.time), ioa.value, ioa.quality))
+		try:
+			while not q.empty():
+				counter += 1
+				asdu = q.get()
+				for ioa in asdu.ioa:
+					if ioa.TypeId != 13:
+						continue
+					buf36.append((ioa.addr, str(ioa.time), ioa.value, ioa.quality))
+			counter2 += 1
+			db.put(buf36)
+			if counter2 >= COMMIT_COUNTER:
+				counter2 = 0
+				db.commit()
 		
-		counter2 += 1
-		db.put(buf36)
-		if (counter2>=COMMIT_COUNTER):
-			counter2 = 0
-			db.commit()
-		time.sleep(QUEUE_RECIEVER_SLEEP)
+		except Exception as e:
+			# 处理特定的异常，例如打印错误信息或记录日志
+			print(f"Error occurred while processing queue: {e}")
+   
+   
+   
+   
+   
+   
+   
+   
+		#time.sleep(QUEUE_RECIEVER_SLEEP)
 
 ###############################################################################
 

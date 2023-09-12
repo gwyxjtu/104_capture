@@ -56,6 +56,7 @@ class asdu(object):
 		self.OA = data[3]
 		self.Addr = data[4]
 		i = 5
+		
 		if (ASDU_LEN==2):
 			self.Addr = self.Addr|data[5]<<8
 			i = 6
@@ -68,6 +69,7 @@ class asdu(object):
 				ioa_class, ioa_bytes = IOA_TYPES.get(self.TypeId)
 				self.ioa.append(ioa_class(data[i:i+IOA_LEN+ioa_bytes]))
 			except Exception as e:
+
 				log.error(e)
 			finally:
 				i += IOA_LEN+ioa_bytes
