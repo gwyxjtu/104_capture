@@ -48,19 +48,19 @@ class db_data(db):
 
 		for (addr, dt, v, q) in buf:
 			#dt_minute = dt[:-3]  # 格式化dt字段，只保留分钟部分
-			dt_minute = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+			dt_minute = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 			if addr in data_dict:
 				item_name = data_dict[addr][0]
 				item_unit = data_dict[addr][1]
 			else:
 				item_name = "未知"
 				item_unit = "未知"
-			#query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val) 
-   				#VALUES ('{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}');"""
-			query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val)
-				SELECT '{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}'
-				WHERE NOT EXISTS (SELECT 1 FROM {self.table_name} WHERE create_time = '{dt_minute}' AND item_addr = '{addr}'
-				)"""
+			query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val) 
+   				VALUES ('{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}');"""
+			# query = f"""INSERT INTO {self.table_name} (create_time, item_addr, item_name, item_unit, item_val)
+			# 	SELECT '{dt_minute}', '{addr}', '{item_name}', '{item_unit}', '{v}'
+			# 	WHERE NOT EXISTS (SELECT 1 FROM {self.table_name} WHERE create_time = '{dt_minute}' AND item_addr = '{addr}'
+			# 	)"""
 			
 			try:
 				cursor.execute(query)
