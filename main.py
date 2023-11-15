@@ -16,6 +16,8 @@ from db_data import db_data
 
 host,port = '192.168.3.21', 2404
 
+# QUEUE_RECIEVER_SLEEP = 2 	# seconds
+# COMMIT_COUNTER = 30 		# 30xQUEUE_RECIEVER_SLEEP seconds
 QUEUE_RECIEVER_SLEEP = 2 	# seconds
 COMMIT_COUNTER = 30 		# 30xQUEUE_RECIEVER_SLEEP seconds
 def log_init():
