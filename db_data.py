@@ -165,7 +165,8 @@ class db_data(db):
 
         # 等待到达下一个五分钟整数倍的时间点
         next_upload_time = self.time + datetime.timedelta(minutes=5)
-        sleep_time = max(0, (next_upload_time - current_time).total_seconds())
+        sleep_time = (next_upload_time - current_time).total_seconds()
+        # sleep_time = max(0, (next_upload_time - current_time).total_seconds())
         if sleep_time > 0:
              time.sleep(sleep_time)
 

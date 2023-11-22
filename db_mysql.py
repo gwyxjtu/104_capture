@@ -16,7 +16,7 @@ class db(object):
 
     def create_table(self):
         time=datetime.now().strftime("%Y_%m")
-        t_n="test20_104_5min_"+time
+        t_n="test21_104_5min_"+time
         self.table_name=t_n
         self.createtable="""CREATE TABLE IF NOT EXISTS public."""+t_n+"""
         (
