@@ -56,6 +56,7 @@ class iec104_client(object):
 				time.sleep(RECONNECT_TIME)
 	def on_i_frame(self,recieved_asdu):
 		if not isinstance(recieved_asdu,asdu):
+			
 			return
 		recieved_asdu.dump()
 
@@ -98,6 +99,7 @@ class iec104_client(object):
 			recieved_asdu = asdu(buf[6:])
 			self.on_i_frame(recieved_asdu)
 			return result
+
 
 	def acknowledge(self):
 		buf = s_apci(bytes(4))

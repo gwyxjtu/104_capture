@@ -1,4 +1,3 @@
-import pymysql
 from datetime import datetime
 import psycopg2
 
@@ -10,17 +9,23 @@ class db(object):
 
     def __init__(self, filename, createscript=None):
         self.filename = filename
-        time=datetime.now().strftime("%Y_%m_%d")
-        t_n="ems_104_"+time
+        # self.sql=psycopg2.connect(host='192.168.3.13', port=5432, user='ems', password='Yulin@0903', database='ems_capture')
+        self.sql = psycopg2.connect(host='123.249.70.226', port=7004, user='postgres', password='postgres', database='ems_capture')
+        self.create_table()
+        self.open()
+
+    def create_table(self):
+        time=datetime.now().strftime("%Y_%m")
+        t_n="test21_104_5min_"+time
         self.table_name=t_n
         self.createtable="""CREATE TABLE IF NOT EXISTS public."""+t_n+"""
         (
             gid SERIAL PRIMARY KEY,
             create_time timestamp without time zone NOT NULL,
             item_addr character varying(20) COLLATE pg_catalog."default" NOT NULL,
-            item_name character varying(50) COLLATE pg_catalog."default",
-            item_unit character varying(20) COLLATE pg_catalog."default",
-            item_val character varying(50) COLLATE pg_catalog."default"
+            item_name character varying(100) COLLATE pg_catalog."default",
+            item_unit character varying(200) COLLATE pg_catalog."default",
+            item_val character varying(100) COLLATE pg_catalog."default"
         )
 
         TABLESPACE pg_default;
@@ -56,7 +61,7 @@ class db(object):
         # if (filename and isinstance(filename,str)):
         #     self.open()
 
-        self.sql = psycopg2.connect(host='123.249.70.226', port=7004, user='postgres', password='postgres', database='ems_capture')
+        
         cursor = self.sql.cursor()
         cursor.execute(f"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '{t_n}')")
         
@@ -69,13 +74,19 @@ class db(object):
             cursor = self.sql.cursor()
             cursor.execute(self.createtable)
             self.sql.commit()
-    
+            self.sql.close()
+            self.closed = True
+
+        
 
 
 
     def __del__(self):
         self.sql.close()
-
+    def open (self):
+        # self.sql=psycopg2.connect(host='192.168.3.13', port=5432, user='ems', password='Yulin@0903', database='ems_capture')
+        self.sql = psycopg2.connect(host='123.249.70.226', port=7004, user='postgres', password='postgres', database='ems_capture')
+        self.closed = False
 
     def close(self):
         self.sql.close()
