@@ -9,14 +9,14 @@ class db(object):
 
     def __init__(self, filename, createscript=None):
         self.filename = filename
-        # self.sql=psycopg2.connect(host='192.168.3.13', port=5432, user='ems', password='Yulin@0903', database='ems_capture')
-        self.sql = psycopg2.connect(host='123.249.70.226', port=7004, user='postgres', password='postgres', database='ems_capture')
+        self.sql=psycopg2.connect(host='192.168.3.13', port=5432, user='ems', password='Yulin@0903', database='ems_capture')
+        # self.sql = psycopg2.connect(host='123.249.70.226', port=7004, user='postgres', password='postgres', database='ems_capture')
         self.create_table()
         self.open()
 
     def create_table(self):
         time=datetime.now().strftime("%Y_%m")
-        t_n="test21_104_5min_"+time
+        t_n="ems_104_"+time
         self.table_name=t_n
         self.createtable="""CREATE TABLE IF NOT EXISTS public."""+t_n+"""
         (
@@ -84,8 +84,8 @@ class db(object):
     def __del__(self):
         self.sql.close()
     def open (self):
-        # self.sql=psycopg2.connect(host='192.168.3.13', port=5432, user='ems', password='Yulin@0903', database='ems_capture')
-        self.sql = psycopg2.connect(host='123.249.70.226', port=7004, user='postgres', password='postgres', database='ems_capture')
+        self.sql=psycopg2.connect(host='192.168.3.13', port=5432, user='ems', password='Yulin@0903', database='ems_capture')
+        # self.sql = psycopg2.connect(host='123.249.70.226', port=7004, user='postgres', password='postgres', database='ems_capture')
         self.closed = False
 
     def close(self):
