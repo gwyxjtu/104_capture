@@ -43,6 +43,7 @@ class db_data(db):
         self.time = current_time - datetime.timedelta(minutes=current_time.minute % 5,
                                                         seconds=current_time.second,
                                                         microseconds=current_time.microsecond)
+        self.create_date = datetime.datetime.now().strftime("%Y-%m")
         
         self.previous_upload_time = time.time()  # 记录上一次的上传时间
 
@@ -52,6 +53,11 @@ class db_data(db):
     def put(self, buf):
         if len(buf) == 0:
             return
+        if datetime.datetime.now().strftime("%Y-%m") != self.create_date:
+            self.create_date = datetime.datetime.now().strftime("%Y-%m")
+            self.close()
+            self.__init__()
+            print(self.create_date)        
 
         current_time = datetime.datetime.now()
         current_time = current_time.replace(second=0, microsecond=0)
@@ -60,21 +66,24 @@ class db_data(db):
         for (addr, dt, v, q) in buf:
             self.data_dict_value[addr]['values'].append(v)
             self.data_dict_value[addr]['timestamps'].append(dt)
+        sorted_data_dict = dict(sorted(self.data_dict_value.items(), key=lambda item: item[0]))
+
+        # if addr == 17573 or addr == 17572:
+        #     next_upload_time = self.time + datetime.timedelta(minutes=5)
+        #     sleep_time = (next_upload_time - current_time).total_seconds()
+        #     if sleep_time > 0:
+        #         time.sleep(sleep_time)
+
 
         # 计算数据处理的时间
         processing_time = time.time() - self.previous_upload_time
 
-        # 等待到达下一个五分钟整数倍的时间点
-        next_upload_time = self.time + datetime.timedelta(minutes=5)
-        sleep_time = (next_upload_time - current_time).total_seconds()
-        # sleep_time = max(0, (next_upload_time - current_time).total_seconds())
-        if sleep_time > 0:
-             time.sleep(sleep_time)
-
         cursor = self.sql.cursor()
 
         # 遍历数据字典，计算每个item_addr的平均值并插入数据库
-        for addr, data in self.data_dict_value.items():
+        # for addr, data in self.data_dict_value.items():
+        for addr, data in sorted_data_dict.items():
+
             if data['timestamps']:
                 # 计算间隔内的平均值
                 avg_value = sum(data['values']) / len(data['values'])
@@ -133,8 +142,20 @@ class db_data(db):
                     except Exception as e:
                         print(f"插入数据时出错: {e}")
 
+    
+
         self.commit()
+        # cursor.close()
+
+        # # 等待到达下一个五分钟整数倍的时间点
+        next_upload_time = self.time + datetime.timedelta(minutes=5)
+        sleep_time = (next_upload_time - current_time).total_seconds()
+        if addr == 17573 and sleep_time >0:
+        # if (addr == 17573 or addr == 25178) and sleep_time > 0:
+            time.sleep(sleep_time)
+        
         cursor.close()
+
 
         # 重置数据字典并更新时间戳
         self.data_dict_value = defaultdict(lambda: {'values': [], 'timestamps': []})
@@ -142,3 +163,4 @@ class db_data(db):
 
         # 更新上一次的上传时间
         self.previous_upload_time = time.time()
+

@@ -14,8 +14,8 @@ from multiprocessing import Process, Queue
 from iec104.client import iec104_client
 from db_data import db_data
 
-# host,port = '192.168.3.21', 2404
-host, port = '123.249.70.226', 7003
+host,port = '192.168.3.21', 2404
+# host, port = '123.249.70.226', 7003
 
 # QUEUE_RECIEVER_SLEEP = 2 	# seconds
 # COMMIT_COUNTER = 30 		# 30xQUEUE_RECIEVER_SLEEP seconds
