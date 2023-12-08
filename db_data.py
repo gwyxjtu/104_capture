@@ -68,13 +68,6 @@ class db_data(db):
             self.data_dict_value[addr]['timestamps'].append(dt)
         sorted_data_dict = dict(sorted(self.data_dict_value.items(), key=lambda item: item[0]))
 
-        # if addr == 17573 or addr == 17572:
-        #     next_upload_time = self.time + datetime.timedelta(minutes=5)
-        #     sleep_time = (next_upload_time - current_time).total_seconds()
-        #     if sleep_time > 0:
-        #         time.sleep(sleep_time)
-
-
         # 计算数据处理的时间
         processing_time = time.time() - self.previous_upload_time
 
