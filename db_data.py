@@ -65,60 +65,63 @@ class db_data(db):
         # 遍历缓冲区，将数据存储到数据字典中
         for (addr, dt, v, q) in buf:
             self.data_dict_value[addr]['values'].append(v)
-            self.data_dict_value[addr]['timestamps'].append(dt)
-        sorted_data_dict = dict(sorted(self.data_dict_value.items(), key=lambda item: item[0]))
 
-        # 计算数据处理的时间
-        processing_time = time.time() - self.previous_upload_time
+            dt = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')
+            dt_minute = dt + datetime.timedelta(minutes=5 - dt.minute % 5)
+
+            # 处理小时、天、月和年变化
+            if dt_minute.minute == 0 and dt_minute.second == 0:
+                # 如果分钟为0，秒为0，说明已经跨到下一个小时，将小时加1
+                dt_minute = dt_minute.replace(hour=(dt_minute.hour + 1) % 24)
+
+                # 处理天、月、年变化
+                if dt_minute.hour == 0:
+                    # 如果小时为0，说明已经跨到下一天，将天数加1
+                    dt_minute = dt_minute.replace(day=(dt_minute.day + 1))
+                    
+                    # 处理月变化
+                    if dt_minute.day == 1:
+                        # 如果天数为1，说明已经跨到下一个月，将月份加1
+                        dt_minute = dt_minute.replace(month=(dt_minute.month + 1) % 13)
+                        
+                        # 处理年变化
+                        if dt_minute.month == 1:
+                            # 如果月份为1，说明已经跨到下一年，将年份加1
+                            dt_minute = dt_minute.replace(year=(dt_minute.year + 1))
+
+            dt_minute = dt_minute.replace(second=0, microsecond=0)
+            
+            self.data_dict_value[addr]['timestamps'].append(dt_minute)
+        sorted_data_dict = dict(sorted(self.data_dict_value.items(), key=lambda item: item[0]))
 
         cursor = self.sql.cursor()
 
+        query_check = f"SELECT COUNT(*) FROM {self.table_name} WHERE create_time = '{dt_minute.strftime('%Y-%m-%d %H:%M:%S')}';"
+        cursor.execute(query_check)
+        count = cursor.fetchone()[0]
+        if count == 0:
+        
         # 遍历数据字典，计算每个item_addr的平均值并插入数据库
         # for addr, data in self.data_dict_value.items():
-        for addr, data in sorted_data_dict.items():
+            for addr, data in sorted_data_dict.items():
 
-            if data['timestamps']:
-                # 计算间隔内的平均值
-                avg_value = sum(data['values']) / len(data['values'])
-                # print(f"{addr}的平均值：{avg_value}")
+                if data['timestamps']:
+                    # 计算间隔内的平均值
+                    avg_value = sum(data['values']) / len(data['values'])
+                    # print(f"{addr}的平均值：{avg_value}")
 
-                # 从这个间隔的第一个数据点获取时间戳
-                dt_minute = data['timestamps'][0]
-                print(f"{dt_minute},{addr}的平均值：{avg_value}")
+                    # 从这个间隔的第一个数据点获取时间戳
+                    dt_minute = data['timestamps'][0]
+                    print(f"{dt_minute},{addr}的平均值：{avg_value}")
 
-                # 将字符串转换为 datetime 对象
-                dt_minute = datetime.datetime.strptime(dt_minute, '%Y-%m-%d %H:%M:%S')
+                    # 检查是否已经插入了相同的 dt_minute，如果是，则跳过插入
+                    # query_check = f"SELECT COUNT(*) FROM {self.table_name} WHERE item_addr = '{addr}' AND create_time = '{dt_minute.strftime('%Y-%m-%d %H:%M:%S')}';"
+                    # cursor.execute(query_check)
+                    # count = cursor.fetchone()[0]
+                    # if count > 0:
+                    #     break
 
-                # 调整时间戳为下一个五分钟整数倍的格式
-                dt_minute = dt_minute + datetime.timedelta(minutes=5 - dt_minute.minute % 5)
-
-                # 处理小时、天、月和年变化
-                if dt_minute.minute == 0 and dt_minute.second == 0:
-                    # 如果分钟为0，秒为0，说明已经跨到下一个小时，将小时加1
-                    dt_minute = dt_minute.replace(hour=(dt_minute.hour + 1) % 24)
-
-                    # 处理天、月、年变化
-                    if dt_minute.hour == 0:
-                        # 如果小时为0，说明已经跨到下一天，将天数加1
-                        dt_minute = dt_minute.replace(day=(dt_minute.day + 1))
-                        
-                        # 处理月变化
-                        if dt_minute.day == 1:
-                            # 如果天数为1，说明已经跨到下一个月，将月份加1
-                            dt_minute = dt_minute.replace(month=(dt_minute.month + 1) % 13)
-                            
-                            # 处理年变化
-                            if dt_minute.month == 1:
-                                # 如果月份为1，说明已经跨到下一年，将年份加1
-                                dt_minute = dt_minute.replace(year=(dt_minute.year + 1))
-                                
-                dt_minute = dt_minute.replace(second=0, microsecond=0)
-                # 检查是否已经插入了相同的 dt_minute，如果是，则跳过插入
-                query_check = f"SELECT COUNT(*) FROM {self.table_name} WHERE item_addr = '{addr}' AND create_time = '{dt_minute.strftime('%Y-%m-%d %H:%M:%S')}';"
-                cursor.execute(query_check)
-                count = cursor.fetchone()[0]
-
-                if count == 0:
+                    # if count == 0:
                     if addr in data_dict:
                         item_name = data_dict[addr][0]
                         item_unit = data_dict[addr][1]
